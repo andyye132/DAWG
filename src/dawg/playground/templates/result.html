@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>DAWG: {{ query }}</title>
+  <style>
+    :root { color-scheme: light dark; }
+    body { margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, sans-serif; }
+    .top {
+      padding: 0.7rem 1.2rem;
+      border-bottom: 1px solid #ddd;
+      background: #f6f6f6;
+      display: flex;
+      gap: 1.25rem;
+      align-items: baseline;
+      flex-wrap: wrap;
+    }
+    .top a { color: #2563eb; text-decoration: none; }
+    .top a:hover { text-decoration: underline; }
+    .meta { color: #555; font-size: 0.9rem; }
+    .meta code { background: #eee; padding: 1px 4px; border-radius: 3px; }
+    .err { padding: 2rem; color: #b00; white-space: pre-wrap; font-family: monospace; }
+    iframe { width: 100%; height: calc(100vh - 50px); border: 0; display: block; }
+  </style>
+</head>
+<body>
+  <div class="top">
+    <a href="/">← New run</a>
+    <span class="meta">
+      <code>{{ url }}</code> — "{{ query }}"
+      {% if n_steps %} — {{ n_steps }} step{{ n_steps != 1 and "s" or "" }}{% endif %}
+    </span>
+  </div>
+  {% if error %}
+    <pre class="err">Run failed:
+
+{{ error }}</pre>
+  {% else %}
+    <iframe src="/trajectory/{{ run_id }}"></iframe>
+  {% endif %}
+</body>
+</html>
