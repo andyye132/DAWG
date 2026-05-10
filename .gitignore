@@ -1,0 +1,13 @@
+external/
+checkpoints/
+data/
+results/
+.venv/
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+.DS_Store
+.uv-cache/
+*.egg-info/
+.pytest_cache/
+slurm-*.out
