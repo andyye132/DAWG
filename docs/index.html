@@ -2,83 +2,99 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>DAWG — Detecting Adversarial Webpages</title>
+  <title>DAWG — playground</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="A screenshot-only classifier that flags adversarially modified web pages targeting visual web agents like MolmoWeb.">
   <style>
     :root { color-scheme: light dark; }
     * { box-sizing: border-box; }
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      max-width: 720px;
+      max-width: 640px;
       margin: 4rem auto;
       padding: 0 1.5rem;
       line-height: 1.55;
-      color: #222;
+    }
+    h1 { margin: 0 0 0.25rem 0; font-size: 2.25rem; letter-spacing: -0.02em; }
+    .tagline { color: #666; margin: 0 0 2.5rem 0; }
+    @media (prefers-color-scheme: dark) { .tagline { color: #999; } }
+    .status {
+      padding: 1.25rem 1.5rem;
+      border-radius: 10px;
+      background: #f5f5f7;
+      margin: 1.5rem 0;
     }
     @media (prefers-color-scheme: dark) {
-      body { color: #ddd; background: #111; }
+      body { background: #111; color: #eee; }
+      .status { background: #1c1c1f; }
       a { color: #6ea8fe; }
-      code { background: #2a2a2a; color: #f8f8f2; }
-      .pill { border-color: #444; color: #aaa; }
     }
-    h1 { margin: 0 0 0.25rem 0; font-size: 2.5rem; letter-spacing: -0.02em; }
-    .tagline { color: #666; margin: 0 0 2rem 0; font-size: 1.05rem; }
-    h2 { margin-top: 2.5rem; font-size: 1.2rem; }
-    a { color: #2563eb; text-decoration: none; }
-    a:hover { text-decoration: underline; }
-    code {
-      background: #f0f0f0;
-      padding: 1px 6px;
-      border-radius: 4px;
-      font-size: 0.9em;
-    }
-    .pill {
+    .dot {
       display: inline-block;
-      font-size: 0.8rem;
-      padding: 2px 8px;
-      border: 1px solid #ddd;
-      border-radius: 999px;
-      color: #888;
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      margin-right: 6px;
       vertical-align: middle;
     }
-    ul { padding-left: 1.25rem; }
-    li { margin-bottom: 0.35rem; }
+    .live { background: #16a34a; box-shadow: 0 0 0 0 rgba(22, 163, 74, 0.7); animation: pulse 2s infinite; }
+    .offline { background: #888; }
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(22, 163, 74, 0.5); }
+      70% { box-shadow: 0 0 0 8px rgba(22, 163, 74, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(22, 163, 74, 0); }
+    }
+    .url {
+      display: block;
+      margin-top: 0.75rem;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 0.95rem;
+      word-break: break-all;
+    }
+    .meta { color: #888; font-size: 0.85rem; margin-top: 0.5rem; }
+    a { color: #2563eb; text-decoration: none; }
+    a:hover { text-decoration: underline; }
     .footer {
       margin-top: 4rem;
-      padding-top: 1.5rem;
-      border-top: 1px solid #eee;
       color: #888;
       font-size: 0.85rem;
-    }
-    @media (prefers-color-scheme: dark) {
-      .footer { border-top-color: #333; }
     }
   </style>
 </head>
 <body>
   <h1>DAWG</h1>
-  <p class="tagline">Detecting Adversarial Webpages against Visual Web Agents <span class="pill">v0.1 · in progress</span></p>
+  <p class="tagline">Detecting Adversarial Webpages against Visual Web Agents.</p>
 
-  <p>DAWG is a binary classifier trained to flag rendered web pages whose pixels have been adversarially modified to fool <a href="https://allenai.org/blog/molmoweb">MolmoWeb</a>, a state-of-the-art screenshot-only visual web agent. A real attacker can serve different content to detected agents than to humans, so a defender never sees a clean reference image — the discriminator must work from a single live screenshot.</p>
+  <div class="status" id="status">
+    <span class="dot offline"></span><strong>Loading status…</strong>
+  </div>
 
-  <p>We generate training data by running white-box PGD attacks against MolmoWeb-4B's vision tower on synthetic web pages (news, e-commerce, blog, login, dashboard, restaurant, search), producing matched (clean, attacked) screenshot pairs at scale. The discriminator (DINOv2-base + MLP head, LoRA fine-tune) is decoupled from MolmoWeb itself, so it ports to any screenshot VLM agent.</p>
-
-  <h2>Docs</h2>
-  <ul>
-    <li><a href="https://github.com/andyye132/DAWG/blob/main/DESIGN.md">DESIGN.md</a> — research question, threat model, attack levels, data plan.</li>
-    <li><a href="https://github.com/andyye132/DAWG/blob/main/PLAYGROUND.md">PLAYGROUND.md</a> — web UI for iterating on MolmoWeb interactively.</li>
-    <li><a href="https://github.com/andyye132/DAWG/blob/main/SETUP.md">SETUP.md</a> — cluster setup (RAIVN / Hyak).</li>
-  </ul>
-
-  <h2>Code</h2>
   <p><a href="https://github.com/andyye132/DAWG">github.com/andyye132/DAWG</a></p>
 
-  <h2>Course context</h2>
-  <p>Final project for a UW deep-learning course taught by the <a href="https://raivn.cs.washington.edu/">RAIVN lab</a> (Spring 2026).</p>
+  <div class="footer">Final project, UW deep-learning course (RAIVN, 2026).</div>
 
-  <div class="footer">
-    Updated 2026-05-11.
-  </div>
+  <script>
+    // Fetch status.json (sibling file on the same GitHub Pages site)
+    // Bust cache so an updated push shows up promptly.
+    fetch('status.json?t=' + Date.now())
+      .then(r => r.json())
+      .then(data => {
+        const el = document.getElementById('status');
+        const updated = data.last_updated || 'unknown';
+        if (data.is_live && data.playground_url) {
+          el.innerHTML = `
+            <span class="dot live"></span><strong>Playground is live.</strong>
+            <a class="url" href="${data.playground_url}" target="_blank" rel="noopener">${data.playground_url}</a>
+            <div class="meta">Login: ask Andy. Updated ${updated}.</div>`;
+        } else {
+          el.innerHTML = `
+            <span class="dot offline"></span><strong>Playground is offline.</strong>
+            <div class="meta">Last live ${updated}.</div>`;
+        }
+      })
+      .catch(err => {
+        document.getElementById('status').innerHTML =
+          `<span class="dot offline"></span><strong>Status unknown.</strong>
+           <div class="meta">Failed to fetch status.json: ${err.message}</div>`;
+      });
+  </script>
 </body>
 </html>
