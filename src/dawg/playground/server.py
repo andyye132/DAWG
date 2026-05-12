@@ -78,8 +78,9 @@ RECENT: dict[str, Path] = {}
 @app.get("/", response_class=HTMLResponse)
 def index(request: Request, _: str = Depends(require_auth)):
     return templates.TemplateResponse(
-        "index.html",
-        {"request": request, "default_max_steps": 10},
+        request=request,
+        name="index.html",
+        context={"default_max_steps": 10},
     )
 
 
@@ -96,9 +97,9 @@ def run(
         traj = client.run(query=full_query, max_steps=max_steps)
     except Exception as e:
         return templates.TemplateResponse(
-            "result.html",
-            {
-                "request": request,
+            request=request,
+            name="result.html",
+            context={
                 "url": url,
                 "query": query,
                 "error": f"{type(e).__name__}: {e}",
@@ -115,9 +116,9 @@ def run(
 
     n_steps = len(getattr(traj, "steps", []) or [])
     return templates.TemplateResponse(
-        "result.html",
-        {
-            "request": request,
+        request=request,
+        name="result.html",
+        context={
             "url": url,
             "query": query,
             "run_id": run_id,

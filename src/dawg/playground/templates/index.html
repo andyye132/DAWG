@@ -35,26 +35,73 @@
       color: white;
       font-weight: 600;
     }
-    button:hover { background: #1d4ed8; }
+    button:hover:not(:disabled) { background: #1d4ed8; }
+    button:disabled {
+      background: #94a3b8;
+      cursor: wait;
+      opacity: 0.85;
+    }
+    .spinner {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      margin-right: 8px;
+      border: 2px solid #fff;
+      border-top-color: transparent;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      vertical-align: middle;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .status {
+      margin-top: 1rem;
+      color: #555;
+      font-size: 0.9rem;
+      display: none;
+    }
+    form.busy fieldset { opacity: 0.55; pointer-events: none; }
   </style>
 </head>
 <body>
   <h1>DAWG Playground</h1>
   <p class="hint">Submit a URL and a query. MolmoWeb runs and you'll see the screenshots, reasoning, and actions for each step.</p>
 
-  <form action="/run" method="post">
-    <label for="url">URL</label>
-    <input type="url" name="url" id="url" placeholder="https://en.wikipedia.org/wiki/Adversarial_machine_learning" required>
+  <form id="run-form" action="/run" method="post">
+    <fieldset style="border: 0; padding: 0; margin: 0;">
+      <label for="url">URL</label>
+      <input type="url" name="url" id="url" placeholder="https://en.wikipedia.org/wiki/Adversarial_machine_learning" required>
 
-    <label for="query">Query</label>
-    <input type="text" name="query" id="query" placeholder="What is this page about?" required>
+      <label for="query">Query</label>
+      <input type="text" name="query" id="query" placeholder="What is this page about?" required>
 
-    <label for="max_steps">Max steps</label>
-    <input type="number" name="max_steps" id="max_steps" value="{{ default_max_steps }}" min="1" max="30">
+      <label for="max_steps">Max steps</label>
+      <input type="number" name="max_steps" id="max_steps" value="{{ default_max_steps }}" min="1" max="30">
+    </fieldset>
 
-    <button type="submit">Run</button>
+    <button type="submit" id="submit-btn">Run</button>
+    <div class="status" id="status">
+      <span class="spinner"></span>
+      Running MolmoWeb… <span id="elapsed">0s</span> elapsed. Don't navigate away; you'll land on the result when it finishes.
+    </div>
   </form>
 
-  <p class="hint" style="margin-top: 2.5rem;">A run typically takes 10–60s depending on max steps. The page will hang while the agent runs; don't navigate away.</p>
+  <p class="hint" style="margin-top: 2.5rem;">A run typically takes 10–60s depending on max steps.</p>
+
+  <script>
+    const form = document.getElementById('run-form');
+    const btn = document.getElementById('submit-btn');
+    const status = document.getElementById('status');
+    const elapsed = document.getElementById('elapsed');
+    form.addEventListener('submit', () => {
+      form.classList.add('busy');
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner"></span>Running…';
+      status.style.display = 'block';
+      const t0 = Date.now();
+      setInterval(() => {
+        elapsed.textContent = Math.round((Date.now() - t0) / 1000) + 's';
+      }, 1000);
+    });
+  </script>
 </body>
 </html>

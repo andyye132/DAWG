@@ -7,6 +7,11 @@ set -euo pipefail
 
 cd /gscratch/raivn/andy132/dawg
 
+# PYTHONNOUSERSITE: ignore packages in ~/.local/lib/python*/site-packages so
+# we use the conda env's versions exclusively. Without this, an older Jinja2
+# or Starlette from user-site can shadow the env and break the templates.
+export PYTHONNOUSERSITE=1
+
 export PYTHONPATH="${PYTHONPATH:-}:/gscratch/raivn/andy132/dawg/src:/gscratch/raivn/andy132/dawg/external/molmoweb"
 export DAWG_USER="${DAWG_USER:-dawg}"
 export DAWG_PASS="${DAWG_PASS:-changeme}"
