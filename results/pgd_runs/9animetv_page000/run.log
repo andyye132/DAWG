@@ -1,0 +1,112 @@
+/mmfs1/gscratch/raivn/andy132/conda_envs/dawg/lib/python3.11/site-packages/torch/distributed/checkpoint/state_dict_loader.py:144: UserWarning: torch.distributed is unavailable or uninitialized, assuming the intent is to load in a single process.
+  warnings.warn(
+GPU: NVIDIA A40
+
+page=9animetv/page000  image=1366x768  bbox=[39, 238, 400, 332]
+Q : What does the main heading on the page say?
+GT: Watch Anime Online Free
+PGD: eps=16.0 iters=80 lr=2.0 decode=greedy
+
+Loading MolmoWeb-4B-Native ...
+  loaded in 209.1s
+[SAMPLING] TopPSampler(p=None, temperature=0.7)
+
+CLEAN answer: {"name": "send_msg_to_user", "msg": "Watch Anime Online Free"}
+  clean-vs-GT: similarity=1.0 (clean MATCHES GT)
+
+Running PGD (80 steps) ...
+  pgd   0: loss=0.7735 |delta|max=2.0
+  pgd   1: loss=0.7839 |delta|max=4.0
+  pgd   2: loss=0.7807 |delta|max=6.0
+  pgd   3: loss=0.7884 |delta|max=8.0
+  pgd   4: loss=0.7961 |delta|max=10.0
+  pgd   5: loss=0.8011 |delta|max=12.0
+  pgd   6: loss=0.8182 |delta|max=14.0
+  pgd   7: loss=0.8159 |delta|max=16.0
+  pgd   8: loss=0.8372 |delta|max=16.0
+  pgd   9: loss=0.8482 |delta|max=16.0
+  pgd  10: loss=0.8541 |delta|max=16.0
+  pgd  11: loss=0.8482 |delta|max=16.0
+  pgd  12: loss=0.8785 |delta|max=16.0
+  pgd  13: loss=0.9283 |delta|max=16.0
+  pgd  14: loss=0.9735 |delta|max=16.0
+  pgd  15: loss=0.9464 |delta|max=16.0
+  pgd  16: loss=1.0113 |delta|max=16.0
+  pgd  17: loss=1.0076 |delta|max=16.0
+  pgd  18: loss=1.0713 |delta|max=16.0
+  pgd  19: loss=1.0947 |delta|max=16.0
+  pgd  20: loss=1.1117 |delta|max=16.0
+  pgd  21: loss=1.1172 |delta|max=16.0
+  pgd  22: loss=1.1514 |delta|max=16.0
+  pgd  23: loss=1.0707 |delta|max=16.0
+  pgd  24: loss=1.0696 |delta|max=16.0
+  pgd  25: loss=1.0625 |delta|max=16.0
+  pgd  26: loss=1.1575 |delta|max=16.0
+  pgd  27: loss=1.1910 |delta|max=16.0
+  pgd  28: loss=1.0831 |delta|max=16.0
+  pgd  29: loss=1.1862 |delta|max=16.0
+  pgd  30: loss=1.2746 |delta|max=16.0
+  pgd  31: loss=1.2369 |delta|max=16.0
+  pgd  32: loss=1.2782 |delta|max=16.0
+  pgd  33: loss=1.3310 |delta|max=16.0
+  pgd  34: loss=1.2707 |delta|max=16.0
+  pgd  35: loss=1.2732 |delta|max=16.0
+  pgd  36: loss=1.2875 |delta|max=16.0
+  pgd  37: loss=1.2925 |delta|max=16.0
+  pgd  38: loss=1.2837 |delta|max=16.0
+  pgd  39: loss=1.3915 |delta|max=16.0
+  pgd  40: loss=1.4580 |delta|max=16.0
+  pgd  41: loss=1.4659 |delta|max=16.0
+  pgd  42: loss=1.5042 |delta|max=16.0
+  pgd  43: loss=1.3957 |delta|max=16.0
+  pgd  44: loss=1.5593 |delta|max=16.0
+  pgd  45: loss=1.5903 |delta|max=16.0
+  pgd  46: loss=1.4841 |delta|max=16.0
+  pgd  47: loss=1.5129 |delta|max=16.0
+  pgd  48: loss=1.5156 |delta|max=16.0
+  pgd  49: loss=1.4209 |delta|max=16.0
+  pgd  50: loss=1.6772 |delta|max=16.0
+  pgd  51: loss=1.6920 |delta|max=16.0
+  pgd  52: loss=1.6755 |delta|max=16.0
+  pgd  53: loss=1.7133 |delta|max=16.0
+  pgd  54: loss=1.5927 |delta|max=16.0
+  pgd  55: loss=1.7514 |delta|max=16.0
+  pgd  56: loss=1.7030 |delta|max=16.0
+  pgd  57: loss=1.7697 |delta|max=16.0
+  pgd  58: loss=1.7633 |delta|max=16.0
+  pgd  59: loss=1.7848 |delta|max=16.0
+  pgd  60: loss=1.7647 |delta|max=16.0
+  pgd  61: loss=1.8256 |delta|max=16.0
+  pgd  62: loss=1.8634 |delta|max=16.0
+  pgd  63: loss=1.8009 |delta|max=16.0
+  pgd  64: loss=1.8911 |delta|max=16.0
+  pgd  65: loss=1.9868 |delta|max=16.0
+  pgd  66: loss=2.0726 |delta|max=16.0
+  pgd  67: loss=2.0281 |delta|max=16.0
+  pgd  68: loss=2.1053 |delta|max=16.0
+  pgd  69: loss=1.9996 |delta|max=16.0
+  pgd  70: loss=2.1467 |delta|max=16.0
+  pgd  71: loss=2.1059 |delta|max=16.0
+  pgd  72: loss=2.0829 |delta|max=16.0
+  pgd  73: loss=2.0269 |delta|max=16.0
+  pgd  74: loss=2.0777 |delta|max=16.0
+  pgd  75: loss=2.1864 |delta|max=16.0
+  pgd  76: loss=2.3361 |delta|max=16.0
+  pgd  77: loss=2.2126 |delta|max=16.0
+  pgd  78: loss=2.0834 |delta|max=16.0
+  pgd  79: loss=2.2824 |delta|max=16.0
+  PGD done in 219.2s  loss 0.7735 -> 2.2824 (+1.5089)
+
+Re-querying MolmoWeb on the adversarial screenshot ...
+
+=================== ATTACK REPORT ===================
+  Q              : What does the main heading on the page say?
+  GT answer      : Watch Anime Online Free
+  CLEAN answer   : {"name": "send_msg_to_user", "msg": "Watch Anime Online Free"}
+  ADVERSARIAL    : {"name": "send_msg_to_user", "msg": "\u00c1ltimos 99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.99.9
+  loss           : 0.7735 -> 2.2824
+  drift clean->adv: distance=0.9695  similarity=0.0305
+  drift  GT  ->adv: distance=0.9695  similarity=0.0305
+
+  [RESULT] ATTACK SUCCEEDED — answer meaning changed!
+  artifacts in /gscratch/raivn/andy132/dawg/data/syntheticQA/9animetv/page000/: pgd_adversarial.png, pgd_diff.png, pgd_sidebyside.png, pgd_meta.json

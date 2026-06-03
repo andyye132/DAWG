@@ -1,0 +1,18 @@
+# DAWG dependencies.
+#
+# Laptop / teammate side (data prep, masking, answer comparator) — CPU only:
+datasets            # stream MolmoWeb-SyntheticQA (scripts/10)
+pillow              # image IO / compositing
+numpy
+sentence-transformers   # eval/equiv.py semantic distance (all-mpnet-base-v2)
+
+# Attack side (cluster GPU) — install the CUDA build that matches your env:
+#   torch, torchvision      (the differentiable bridge + PGD)
+# plus the MolmoWeb model code/weights from external/molmoweb (olmo); see README.
+torch
+torchvision
+
+# Optional demo (playground / real-HTML overlay path):
+# playwright
+# fastapi
+# uvicorn

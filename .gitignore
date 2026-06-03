@@ -1,13 +1,25 @@
-external/
-checkpoints/
-data/
-results/
-.venv/
+# Python
 __pycache__/
-*.pyc
-.ipynb_checkpoints/
-.DS_Store
-.uv-cache/
+*.py[cod]
 *.egg-info/
-.pytest_cache/
-slurm-*.out
+.eggs/
+.venv/
+venv/
+.ipynb_checkpoints/
+
+# OS
+.DS_Store
+
+# Huge / regenerable — never in git. Leading "/" anchors to repo root so we do
+# NOT accidentally ignore src/dawg/data/ (a real package dir):
+#   /data/      SyntheticQA subset (re-fetch with scripts/10_fetch_syntheticqa.py)
+#   /external/  MolmoWeb checkout + 17GB checkpoints (clone allenai/molmoweb; README)
+#   /results/   attack outputs / logs (force-add a curated demo folder: git add -f)
+/data/
+/external/
+/results/
+
+# Pre-pivot slack
+/_old/
+/_smoke/
+*.log
