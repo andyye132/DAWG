@@ -84,11 +84,13 @@ def _compute_lm_loss(output, target_tokens, loss_masks):
 # Geometry
 # --------------------------------------------------------------------------- #
 
-def bbox_mask(H: int, W: int, bbox: tuple[int, int, int, int], device) -> torch.Tensor:
-    """(H,W,3) float mask, 1 inside [x,y,w,h]."""
-    x, y, w, h = bbox
+def bbox_mask(H: int, W: int, bboxes, device) -> torch.Tensor:
+    """(H,W,3) float mask, 1 inside the box(es). `bboxes` is a single [x,y,w,h]
+    or a list of them (union mask -> multi-patch attacks)."""
+    boxes = bboxes if (len(bboxes) > 0 and isinstance(bboxes[0], (list, tuple))) else [bboxes]
     m = torch.zeros((H, W, 3), dtype=torch.float32, device=device)
-    m[y:y + h, x:x + w, :] = 1.0
+    for (x, y, w, h) in boxes:
+        m[int(y):int(y + h), int(x):int(x + w), :] = 1.0
     return m
 
 
@@ -109,7 +111,12 @@ class PixelPGDSetup:
         for p in pred.model.parameters():
             p.requires_grad_(False)
         self.question = question
-        self.bbox = tuple(int(v) for v in bbox)
+        # bbox is a single [x,y,w,h] or a list of them (multi-patch union mask)
+        if len(bbox) > 0 and isinstance(bbox[0], (list, tuple)):
+            self.bboxes = [[int(v) for v in b] for b in bbox]
+        else:
+            self.bboxes = [[int(v) for v in bbox]]
+        self.bbox = tuple(self.bboxes[0])  # first box (compat / sanity stat)
 
         self.image_np = image_np
         self.img_pil = Image.fromarray(image_np.astype("uint8")).convert("RGB")
@@ -129,7 +136,7 @@ class PixelPGDSetup:
         self.bridge = DiffPreprocessor(**self.params)
 
         self.screenshot = torch.tensor(image_np.astype("float32"), device=self.device)  # (H,W,3)[0,255]
-        self.mask = bbox_mask(self.H, self.W, self.bbox, self.device)
+        self.mask = bbox_mask(self.H, self.W, self.bboxes, self.device)
         self.n_perturbable = int(self.mask.sum().item())
 
     def adv_images(self, delta: torch.Tensor) -> torch.Tensor:
@@ -186,21 +193,44 @@ class PixelPGDSetup:
 
     # ---------------- full PGD (for LATER; not used by the sanity milestone) ---
     def pgd_l1(self, *, eps: float = 16.0, n_iter: int = 50, lr: float = 2.0,
-               verbose: bool = True):
+               verbose: bool = True, delta0: torch.Tensor | None = None,
+               optim: str = "sign"):
+        """optim: 'sign' = Linf sign-PGD (default, unchanged); 'momentum' = MI-FGSM
+        (accumulate normalized grad, step on its sign); 'adam' = Adam in pixel space,
+        projected back to the eps-ball + patch mask each step.
+        delta0: optional starting perturbation (for random restarts)."""
         self.pred.model.eval()
-        delta = torch.zeros_like(self.screenshot, requires_grad=True)
+        if delta0 is None:
+            delta = torch.zeros_like(self.screenshot, requires_grad=True)
+        else:
+            delta = (delta0.to(self.screenshot) * self.mask).clamp(-eps, eps) \
+                .detach().clone().requires_grad_(True)
         history = []
+        g_mom = torch.zeros_like(delta)
+        opt = torch.optim.Adam([delta], lr=lr, maximize=True) if optim == "adam" else None
         for step in range(n_iter):
             loss = self.loss_at(delta)
-            if delta.grad is not None:
-                delta.grad.zero_()
-            loss.backward()
-            with torch.no_grad():
-                delta.add_(lr * delta.grad.sign() * self.mask)  # ascent (maximize CE)
-                delta.clamp_(-eps, eps)
+            if optim == "adam":
+                opt.zero_grad(set_to_none=True)
+                loss.backward()
+                opt.step()
+                with torch.no_grad():
+                    delta.mul_(self.mask).clamp_(-eps, eps)  # project to mask + eps-ball
+            else:
+                if delta.grad is not None:
+                    delta.grad.zero_()
+                loss.backward()
+                with torch.no_grad():
+                    g = delta.grad * self.mask
+                    if optim == "momentum":
+                        g_mom.add_(g / (g.abs().mean() + 1e-12))  # MI-FGSM, mu=1
+                        step_dir = g_mom.sign()
+                    else:  # 'sign'
+                        step_dir = g.sign()
+                    delta.add_(lr * step_dir * self.mask).clamp_(-eps, eps)
             history.append(float(loss.detach().item()))
             if verbose:
-                print(f"  pgd {step:3d}: loss={history[-1]:.4f} "
+                print(f"  pgd[{optim}] {step:3d}: loss={history[-1]:.4f} "
                       f"|delta|max={delta.detach().abs().max().item():.1f}")
         with torch.no_grad():
             adv = (self.screenshot + delta * self.mask).clamp(0, 255)
