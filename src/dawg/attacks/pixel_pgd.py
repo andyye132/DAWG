@@ -102,7 +102,8 @@ class PixelPGDSetup:
     """Everything needed to run / sanity-check pixel-space PGD on one example."""
 
     def __init__(self, pred, image_np: np.ndarray, question: str,
-                 bbox: tuple[int, int, int, int], *, device=None, clean_answer=None):
+                 bbox: tuple[int, int, int, int], *, device=None, clean_answer=None,
+                 target_answer=None):
         self.pred = pred
         self.device = device or next(pred.model.parameters()).device
         self.model_dtype = next(pred.model.parameters()).dtype
@@ -122,13 +123,28 @@ class PixelPGDSetup:
         self.img_pil = Image.fromarray(image_np.astype("uint8")).convert("RGB")
         self.H, self.W = image_np.shape[:2]
 
-        # Clean answer = the CE target the L1 attack pushes away from.
+        # clean_answer = the model's correct answer (L1 pushes AWAY from it).
+        # target_answer (L2) = the minimal-lie string we PULL the model toward;
+        # None -> L1 untargeted (CE target = clean answer).
         self.clean_answer = clean_answer if clean_answer is not None else \
             pred.predict(question, image_np)
+        self.target_answer = target_answer
+        ce_target = target_answer if target_answer is not None else self.clean_answer
 
         # Non-pixel batch fields (geometry/tokens) from the real preprocessor.
         self.batch_t, self.n_prompt, self.n_target = build_batch_with_target(
-            pred, self.img_pil, question, self.clean_answer, self.device)
+            pred, self.img_pil, question, ce_target, self.device)
+
+        # L2 load-bearing mask: 1 on target tokens that DIFFER from the clean answer
+        # (the corrupted fact), 0 on shared-truth tokens -> masked targeted CE.
+        self.lb_mask = None
+        if target_answer is not None:
+            tk = pred.preprocessor.preprocessor.text_preprocessor.tokenizer
+            cids, tids = list(tk.encode(self.clean_answer)), list(tk.encode(target_answer))
+            m = [1.0 if (i >= len(cids) or tids[i] != cids[i]) else 0.0 for i in range(len(tids))]
+            if sum(m) == 0:
+                m = [1.0] * len(tids)
+            self.lb_mask = torch.tensor(m, device=self.device)
         self.ref_images = self.batch_t["images"]  # real uint8->tensor, for reference
 
         # Differentiable bridge configured from the live preprocessor.
@@ -160,6 +176,9 @@ class PixelPGDSetup:
         lo, hi = self.n_prompt - 1, self.n_prompt + self.n_target - 1
         sel = logits[0, lo:hi, :].float()
         labels = self.batch_t["input_ids"][0, self.n_prompt:self.n_prompt + self.n_target].long()
+        if self.lb_mask is not None:  # L2: weight CE to the load-bearing tokens only
+            ce = F.cross_entropy(sel, labels, reduction="none")
+            return (ce * self.lb_mask).sum() / self.lb_mask.sum().clamp(min=1)
         return F.cross_entropy(sel, labels)
 
     # ---------------- sanity check (one forward + backward, NO optimization) ---
@@ -194,7 +213,7 @@ class PixelPGDSetup:
     # ---------------- full PGD (for LATER; not used by the sanity milestone) ---
     def pgd_l1(self, *, eps: float = 16.0, n_iter: int = 50, lr: float = 2.0,
                verbose: bool = True, delta0: torch.Tensor | None = None,
-               optim: str = "sign"):
+               optim: str = "sign", minimize: bool = False):
         """optim: 'sign' = Linf sign-PGD (default, unchanged); 'momentum' = MI-FGSM
         (accumulate normalized grad, step on its sign); 'adam' = Adam in pixel space,
         projected back to the eps-ball + patch mask each step.
@@ -207,7 +226,8 @@ class PixelPGDSetup:
                 .detach().clone().requires_grad_(True)
         history = []
         g_mom = torch.zeros_like(delta)
-        opt = torch.optim.Adam([delta], lr=lr, maximize=True) if optim == "adam" else None
+        opt = torch.optim.Adam([delta], lr=lr, maximize=not minimize) if optim == "adam" else None
+        sgn = -1.0 if minimize else 1.0  # L2 targeted = minimize masked CE toward the target
         for step in range(n_iter):
             loss = self.loss_at(delta)
             if optim == "adam":
@@ -227,7 +247,7 @@ class PixelPGDSetup:
                         step_dir = g_mom.sign()
                     else:  # 'sign'
                         step_dir = g.sign()
-                    delta.add_(lr * step_dir * self.mask).clamp_(-eps, eps)
+                    delta.add_(sgn * lr * step_dir * self.mask).clamp_(-eps, eps)
             history.append(float(loss.detach().item()))
             if verbose:
                 print(f"  pgd[{optim}] {step:3d}: loss={history[-1]:.4f} "
